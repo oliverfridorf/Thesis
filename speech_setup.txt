@@ -1,0 +1,81 @@
+//geometry
+Nx := 150
+Ny := 150
+Nz := 1
+setgridsize(Ny, Nx, Nz)
+c := 3e-9
+R:= Nx*c/2
+
+setcellsize(c, c, 5e-9)
+setgeom(circle(450e-9))
+//setgeom(ImageShape("/home/martin/Mumax3_Flavio/Alex/Circle_500nm_notch.PNG"))
+
+M1sat  := 740e3
+Msat  = 740e3
+Msaf  := 12e5
+Aex   = 1.3e-11
+alpha = 0.01
+m = vortex(1, -1).Transl( 00.0e-9, 0.0, 0.0 )  
+
+Bx := 0.0
+Bz := 0.0
+By := 0.00
+B_ext = vector(Bx, By, Bz)
+pol = 0.5
+EpsilonPrime = 0.3
+
+jdc := -0e9
+A := 0.0008
+f := 50e6
+j = vector(0, 0, (jdc))
+
+py := pow(1-pow((Bz/(4*3.142*1e-7*Msaf)),2),0.5)
+pz := Bz/(4*3.142*1e-7*Msaf)
+FixedLayer = vector(0,py,pz)
+grainSize  := 40e-9  // m
+
+randomSeed := 1
+maxRegion  := 255
+ext_makegrains(grainSize, maxRegion, randomSeed)
+defregion(256, circle(Nx*c).inverse())
+for i:=0; i<maxRegion; i++{
+	axis1  := vector(0.1*i/256, 1 , 0.1*i/256)
+	AnisC1.SetRegion(i, axis1)  
+	Msat.SetRegion(i, 0.9*M1sat + M1sat*0.1*i/256)
+	K := 0.0
+	Kc1.SetRegion(i, K + i/256 * 0.1 * K)
+}
+for i:=0; i<maxRegion; i++{
+	for j:=i+1; j<maxRegion; j++{
+		ext_ScaleExchange(i, j, 0.9 )
+	}
+}
+
+OutputFormat = OVF1_TEXT
+mask := newVectorMask(Nx, Ny, 1)
+for i:=0; i<Nx; i++{
+	for j:=0; j<Ny; j++{
+		r := index2coord(i, j, 0)
+		x := r.X()
+		y := r.Y()
+		ralex := pow(pow(x,2)+pow(y,2),0.5)
+		h := 0.5*ralex
+		mask.setVector(i, j, 0, vector(h*y/ralex, -h*x/ralex, 0))
+}}
+
+SetSolver(3)
+
+alpha = 0.01
+
+Bymin := 0.02
+
+B_ext = vector(0,0, 0)
+//run(10e-9)
+
+tableadd(ext_corepos)
+tableadd(j)
+tableadd(B_ext)
+tableadd(E_demag)
+tableadd(E_exch)
+tableadd(E_Zeeman)
+tableadd(E_total)
