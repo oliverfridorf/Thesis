@@ -9,7 +9,9 @@ from scipy.io.wavfile import read, write
 from matplotlib.font_manager import FontProperties
 from colorama import Fore, Back, Style
 import pandas as pd
-from RSRTxReadBin.RTxReadBin import RTxReadBin
+from RSRTxReadBin.RTxReadBin import RTxReadBin # File has been modified to accept the number of channels as a parameter when loading .bin data files. 
+                                               # To do this, find the find in your local Python environment after installing the .whl file
+                                               # Then add the "ch" argument to the reading function. 
 import os
 
 from sklearn.neural_network import MLPClassifier
